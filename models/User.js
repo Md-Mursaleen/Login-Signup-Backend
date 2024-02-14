@@ -28,4 +28,4 @@ userSchema.pre("save", async function (next) {
     next();
 });
 
-mongoose.model("UserModel", userSchema);
+mongoose.model("User", userSchema);

@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
-const User = mongoose.model("UserModel");
+const User = mongoose.model("User");
 const jsonwebtoken = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
@@ -31,8 +31,8 @@ async function mailer(recieverMail, code) {
 };
 
 router.post("/signup", async (req, res) => {
-    const { name, email, password } = req.body;
-    const user = new User({ name, email, password });
+    const { name, email, password, confirmPassword } = req.body;
+    const user = new User({ name, email, password, confirmPassword });
     try {
         await user.save();
         const token = jsonwebtoken.sign({ _id: user._id }, process.env.JWT_SECRET);
@@ -75,8 +75,8 @@ router.post("/verify", (req, res) => {
         return res.status(422).json({ error: "Please fill all the fields" });
     }
     User.findOne({ email: email }).then(async (savedUser) => {
-        if (savedUser) {
-            return res.status(422).json({ error: "Email already exists" });
+        if (!savedUser) {
+            return res.status(422).json({ error: "Invalid Credentials" });
         }
         try {
             let verificationCode = Math.floor(100000 + Math.random() * 900000);
